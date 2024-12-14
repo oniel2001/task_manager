@@ -385,6 +385,7 @@ def update_status(task_id):
     if task.status == 'Completed':
         completion_date = datetime.now().date()
         task.completion_date = completion_date
+        task.progress_percentage = '100%'
     else:
         task.completion_date = None
         # pass
