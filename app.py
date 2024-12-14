@@ -2,6 +2,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import smtplib
 import base64
+from io import StringIO, BytesIO
 import io
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -12,7 +13,7 @@ from flask_migrate import Migrate  # Import Flask-Migrate
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from flask_sqlalchemy import SQLAlchemy
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, make_response, send_file
 import matplotlib
 matplotlib.use('Agg')  # Use non-interactive backend
 
@@ -201,7 +202,7 @@ def list_users():
 @login_required
 def list_tasks():
     filter_status = request.args.get('filter', 'All')
-
+    print('filter_status', filter_status)
     tasks_query = Task.query.filter_by(delete_status='False')
     print('current user name', current_user.name)
     if current_user.role in ['admin', 'dev']:
@@ -239,9 +240,8 @@ def list_tasks():
         status_counts = status_counts.reindex(statuses, fill_value=0)
 
     if current_user.role in ['admin', 'dev']:
-        task_query = Task.query.filter_by(delete_status='False').all()
-        print(task_query)
-        return render_template('task_table.html', tasks=task_query, task_count=len(tasks),
+        print(tasks)
+        return render_template('task_table.html', tasks=tasks, task_count=len(tasks),
                                completed_tasks=status_counts.get(
                                    'Completed', 0),
                                pending_tasks=status_counts.get('Pending', 0))
@@ -520,6 +520,33 @@ def create_user():
         return redirect(url_for('list_users'))
 
     return render_template('user_page.html')
+
+
+@app.route("/export_tasks", methods=['POST'])
+@login_required
+def export_tasks():
+    print(request.form)
+    export_type = request.form.get('type')
+    selected_ids = request.form.get('ids[]')
+    selected_ids = selected_ids.split(',')
+    print(export_type)
+    print(selected_ids)
+    tasks = Task.query.filter(Task.task_id.in_(selected_ids)).all()
+
+    data = pd.DataFrame([{
+        'Task Name': task.title,
+        'Status': task.status,
+        'Assigned To': task.assigned_to,
+        'Due Date': task.due_date,
+        'Priority': task.priority
+    } for task in tasks])
+
+    # data.to_csv(string_buffer, index=False)
+    print(data)
+    output = BytesIO()
+    data.to_csv(output, index=False)
+    output.seek(0)
+    return send_file(output, as_attachment=True, download_name="export.csv", mimetype="text/csv")
 
 
 @app.route('/delete_user/<int:user_id>', methods=['POST'])
