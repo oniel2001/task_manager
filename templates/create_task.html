@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Create Task</title>
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet" />
+  <script>
+    function goToDashboard() {
+      window.location.href = "{{ url_for('dashboard') }}";
+    }
+  </script>
+</head>
+
+<body>
+  <div class="container mt-5">
+    
+    {% if task %}
+    <h1>Edit Task</h1>
+    <a href="{{ url_for('logout') }}" class="btn btn-secondary float-right">Logout</a>
+    {% if current_user.role == 'admin' %}
+    <a href="{{ url_for('user_page')}}" class="btn btn-info float-right mr-2">Create User</a>
+    <a href="{{ url_for('list_users')}}" class="btn btn-info float-right mr-2">List Users</a>
+    <a href="{{ url_for('task_page') }}" class="btn btn-info float-right mr-2">Create Task</a>
+    <a href="{{ url_for('list_tasks') }}" class="btn btn-info float-right mr-2">List Tasks</a>
+    {% endif %}
+    <form method="POST" action="{{ url_for('add_task') }}" class="mt-4">
+      <div class="form-group">
+        <input type="text" class="form-control" id="taskid" name="task_id"
+          value="{{task.task_id}}" style="display: none;" required />
+        <label for="taskName">Task Title</label>
+        <input type="text" class="form-control" id="taskTitle" name="task_title" placeholder="Enter task title"
+          value="{{task.title}}" required />
+      </div>
+
+      <div class="form-group">
+        <label for="status">Status</label>
+        <select class="form-control" id="status" name="status">
+
+          {% if task.status == "Pending" %}
+          <option value="Pending">Pending</option>
+          <option value="Completed">Completed</option>
+          {% else %}
+          <option value="Completed">Completed</option>
+          <option value="Pending">Pending</option>
+          {% endif %}
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="progress_percent">Progress Percenetage</label>
+        <select class="form-control" id="status" name="progress_percentage">
+          {% if task.progress_percentage == "0%" %}
+            <option value="0%">0%</option>
+            <option value="25%">25%</option>
+            <option value="50%">50%</option>
+            <option value="75%">75%</option>
+            <option value="100%">100%</option>
+          {% elif task.progress_percentage == "25%" %}
+            <option value="25%">25%</option>
+            <option value="0%">0%</option>
+            <option value="50%">50%</option>
+            <option value="75%">75%</option>
+            <option value="100%">100%</option>
+          {% elif task.progress_percentage == "50%" %}
+            <option value="50%">50%</option>
+            <option value="0%">0%</option>
+            <option value="25%">25%</option>
+            <option value="75%">75%</option>
+            <option value="100%">100%</option>
+          {% elif task.progress_percentage == "75%" %}
+            <option value="75%">75%</option>
+            <option value="0%">0%</option>
+            <option value="25%">25%</option>
+            <option value="50%">50%</option>
+            <option value="100%">100%</option>
+          {% else %}
+            <option value="100%">100%</option>
+            <option value="0%">0%</option>
+            <option value="25%">25%</option>
+            <option value="50%">50%</option>
+            <option value="75%">75%</option>
+          {% endif %}
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="assigned_to">Assigned To</label>
+        <select class="form-control" id="assigned_to" name="assigned_to">
+          <option value="{{ task.assigned_to }}">{{ task.assigned_to }}</option>
+          {% for user in users %}
+          <option value="{{ user.name }}">{{ user.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="startDate">Start Date</label>
+        <input type="date" class="form-control" id="startDate" name="start_date" value="{{task.start_date}}" required />
+      </div>
+
+      <div class="form-group">
+        <label for="dueDate">Due Date</label>
+        <input type="date" class="form-control" id="dueDate" name="due_date" value="{{task.due_date}}" required />
+      </div>
+      <div class="form-group">
+        <label for="priority">Priority</label>
+        <select class="form-control" id="priority" name="priority">
+          {% if task.priority == "Low" %}
+          <option value="Low">Low</option>
+          <option value="Medium">Medium</option>
+          <option value="High">High</option>
+          {% elif task.priority == "Medium" %}
+          <option value="Medium">Medium</option>
+          <option value="Low">Low</option>
+          <option value="High">High</option>
+          {% else %}
+          <option value="High">High</option>
+          <option value="Medium">Medium</option>
+          <option value="Low">Low</option>
+          {% endif %}
+
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary">Submit</button>
+      <button type="button" class="btn btn-info ml-2" onclick="goToDashboard()">
+        Go to Dashboard
+      </button>
+    </form>
+    {% else %}
+    <h1>Create Task</h1>
+    <a href="{{ url_for('logout') }}" class="btn btn-secondary float-right">Logout</a>
+    {% if current_user.role == 'admin' %}
+    <a href="{{ url_for('user_page')}}" class="btn btn-info float-right mr-2">Create User</a>
+    <a href="{{ url_for('list_users')}}" class="btn btn-info float-right mr-2">List Users</a>
+    <a href="{{ url_for('task_page') }}" class="btn btn-info float-right mr-2">Create Task</a>
+    <a href="{{ url_for('list_tasks') }}" class="btn btn-info float-right mr-2">List Tasks</a>
+    {% endif %}
+    <form method="POST" action="{{ url_for('add_task') }}" class="mt-4">
+      <div class="form-group">
+        <label for="taskName">Task Title</label>
+        <input type="text" class="form-control" id="taskTitle" name="task_title" placeholder="Enter task title"
+          required />
+      </div>
+
+      <div class="form-group">
+        <label for="status">Status</label>
+        <select class="form-control" id="status" name="status">
+          <option value="Pending">Pending</option>
+          <option value="Complete">Completed</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="progress_percent">Progress Percenetage</label>
+        <select class="form-control" id="status" name="progress_percentage">
+          <option value="0%">0%</option>
+          <option value="25%">25%</option>
+          <option value="50%">50%</option>
+          <option value="75%">75%</option>
+          <option value="100%">100%</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="assigned_to">Assigned To</label>
+        <select class="form-control" id="assigned_to" name="assigned_to">
+          {% for user in users %}
+          <option value="{{ user.name }}">{{ user.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="startDate">Start Date</label>
+        <input type="date" class="form-control" id="startDate" name="start_date" required />
+      </div>
+
+      <div class="form-group">
+        <label for="dueDate">Due Date</label>
+        <input type="date" class="form-control" id="dueDate" name="due_date" required />
+      </div>
+      <div class="form-group">
+        <label for="priority">Priority</label>
+        <select class="form-control" id="priority" name="priority">
+          <option value="Low">Low</option>
+          <option value="Medium">Medium</option>
+          <option value="High">High</option>
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary">Submit</button>
+      <button type="button" class="btn btn-info ml-2" onclick="goToDashboard()">
+        Go to Dashboard
+      </button>
+
+      {% endif %}
+
+  </div>
+</body>
+
+</html>

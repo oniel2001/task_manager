@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Edit Task</title>
+    <link
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <script>
+      function goToDashboard() {
+        window.location.href = "{{ url_for('dashboard') }}";
+      }
+    </script>
+  </head>
+  <body>
+    <h1>Edit Task</h1>
+    <form
+      action="{{ url_for('edit_task', task_id=task.task_id) }}"
+      method="POST"
+    >
+      <label for="task_name">Task Name:</label>
+      <input
+        type="text"
+        id="task_name"
+        name="task_name"
+        value="{{ task.title }}"
+        required
+      />
+      <label for="priority">Priority:</label>
+      <input
+        type="text"
+        id="priority"
+        name="priority"
+        value="{{ task.priority }}"
+        required
+      />
+      <button type="submit">Save</button>
+      <a href="{{ url_for('list_tasks') }}">Cancel</a>
+    </form>
+  </body>
+</html>
